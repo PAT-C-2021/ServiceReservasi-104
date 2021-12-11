@@ -13,7 +13,7 @@ namespace ServiceReservasi
         [OperationContract]
         string pemesanan(int IDPemensanan, string NamaCustomer, string NoTelepon, int JumlahPesanan, int IDLokasi);
         [OperationContract]
-        string editPemesanan(string IDPemesanan, string NamaCustomer);
+        string editPemesanan(string IDPemesanan, string NamaCustomer, string No_tlp);
         [OperationContract]
         string deletePemesanan(string IDPemesanan);
 
@@ -61,7 +61,7 @@ namespace ServiceReservasi
         [DataMember]
         public int JumlahPemesanan { get; set; }
         [DataMember]
-        public int IDLokasi { get; set; }
+        public int Lokasi { get; set; }
     }
 
 }
