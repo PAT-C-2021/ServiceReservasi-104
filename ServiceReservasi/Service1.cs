@@ -12,7 +12,7 @@ namespace ServiceReservasi
     public class Service1 : IService1
     {
         //string koneksi = "Data Source=LAPTOP-GTRP6JSV;Initial Catalog=WCFReservasi;Persist Security Info=True;User ID=sa;Password=nova2000";
-        string koneksi = "Data Source=LAPTOP-GTRP6JSV;Initial Catalog=WCFReservasi;Integrated Security=True";
+        string koneksi = "Data Source=LAPTOP-GTRP6JSV;Initial Catalog=WCFReservasi;Persist Security Info=True; User ID=sa;password=nova2000";
         SqlConnection conn;
         SqlCommand cmd;        
 
@@ -52,7 +52,7 @@ namespace ServiceReservasi
                 {
                     DetailLokasi data = new DetailLokasi();
 
-                    data.IDLokasi = read.GetInt32(0);
+                    data.IDLokasi = read.GetString(0);
                     data.NamaLokasi = read.GetString(1);                    
                     data.DesripsiFull = read.GetString(3);
                     data.Kuota = read.GetInt32(4);
@@ -89,7 +89,7 @@ namespace ServiceReservasi
             return a;
         }
 
-        public string pemesanan(int IDPemensanan, string NamaCustomer, string NoTelepon, int JumlahPesanan, int IDLokasi)
+        public string pemesanan(int IDPemensanan, string NamaCustomer, string NoTelepon, int JumlahPesanan, string IDLokasi)
         {
             string a = "gagal";
 
@@ -117,19 +117,135 @@ namespace ServiceReservasi
             }
 
             return a;
-        }        
+        }
+
+        public string Login(string username, string password)
+        {
+            string kategori = "";
+
+            string sql = "SELECT Kategori FROM dbo.login WHERE Username= '" + username + "' AND Password= '" + password +"'";
+            conn = new SqlConnection(koneksi);
+            cmd = new SqlCommand(sql, conn);
+            conn.Open();
+            SqlDataReader reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                kategori = reader.GetString(0);
+            }
+            conn.Close();
+                            
+            return kategori;
+        }
+
+        public string Register(string username, string password, string kategori)
+        {
+            try 
+            {
+                string sql = "INSERT INTO dbo.login VALUES('" +username+ "','"+password+ "','"+kategori+"')";
+                conn = new SqlConnection(koneksi);
+                cmd = new SqlCommand(sql, conn);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+
+                return "Sukses";
+            }
+            catch(Exception e) 
+            { 
+                return e.ToString(); 
+            }
+        }
+
+        public string UpdateRegister(string username, string password, string kategori, int id)
+        {
+            try 
+            {
+                string sql = "UPDATE dbo.login SET Username='"+username+ "',Password='"+password+ "', Kategori='"+kategori+ "' WHERE Id_login='"+id+"'";
+                conn = new SqlConnection(koneksi);
+                cmd = new SqlCommand(sql, conn);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+
+                return "Sukses";
+            }
+            catch(Exception e)
+            {
+                return e.ToString();
+            }
+        }
+
+        public string DeleteRegister(string username)
+        {
+            try 
+            {
+                int id = 0;
+                string sql = "SELECT Id_login FROM dbo.login WHERE Username='" + username + "'";
+                conn = new SqlConnection(koneksi);
+                cmd = new SqlCommand(sql, conn);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    id = reader.GetInt32(0);
+                }
+                conn.Close();
+
+                string sql2 = "DELETE FROM dbo.login WHERE Id_login='" + id + "'";
+                conn = new SqlConnection(koneksi);
+                cmd = new SqlCommand(sql2, conn);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+
+                return "Sukses";
+            }
+            catch(Exception e)
+            {
+                return e.ToString();
+            }
+        }
+
+        public List<DataRegister> DataRegisters()
+        {
+            List<DataRegister> list = new List<DataRegister>();
+            try 
+            {
+                string sql = "SELECT Id_login, Username, Password, Kategori FROM dbo.login";
+                conn = new SqlConnection(koneksi);
+                cmd = new SqlCommand(sql, conn);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    DataRegister data = new DataRegister();
+                    data.id = reader.GetInt32(0);
+                    data.username = reader.GetString(1);
+                    data.password = reader.GetString(2);
+                    data.kategori = reader.GetString(3);
+                    list.Add(data);
+                }
+                conn.Close();
+            }
+            catch(Exception e)
+            {
+                e.ToString();
+            }
+            return list;
+        }
 
         public List<Pemesanan> Pemesanans()
         {
             List<Pemesanan> pemesanans = new List<Pemesanan>();
             try
             {
-                string sql = "SELECT Id_reservasi, Nama_Customer, No_telepon, Jml_pemesanan, Nama_lokasi " +
-                    "FORM dbo.pemesanan p JOIN dbo.lokasi l on p.Id_lokasi = l.Id_lokasi";
+                string sql = "SELECT Id_reservasi, Nama_customer, No_telepon, Jml_pemesan, Nama_lokasi FROM dbo.pemesanan JOIN dbo.lokasi ON dbo.pemesanan.Id_lokasi = dbo.lokasi.Id_lokasi";                
                 conn = new SqlConnection(koneksi);
                 cmd = new SqlCommand(sql, conn);
                 conn.Open();
+
                 SqlDataReader reader = cmd.ExecuteReader();
+                
                 while (reader.Read())
                 {
                     Pemesanan data = new Pemesanan();
@@ -138,7 +254,7 @@ namespace ServiceReservasi
                     data.NamaCustomer = reader.GetString(1);
                     data.NoTelepon = reader.GetString(2);
                     data.JumlahPemesanan = reader.GetInt32(3);
-                    data.Lokasi = reader.GetInt32(4);
+                    data.Lokasi = reader.GetString(4);
 
                     pemesanans.Add(data);
                 }

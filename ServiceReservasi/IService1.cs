@@ -11,11 +11,22 @@ namespace ServiceReservasi
     public interface IService1
     {       
         [OperationContract]
-        string pemesanan(int IDPemensanan, string NamaCustomer, string NoTelepon, int JumlahPesanan, int IDLokasi);
+        string pemesanan(int IDPemensanan, string NamaCustomer, string NoTelepon, int JumlahPesanan, string IDLokasi);
         [OperationContract]
         string editPemesanan(string IDPemesanan, string NamaCustomer, string No_tlp);
         [OperationContract]
         string deletePemesanan(string IDPemesanan);
+
+        [OperationContract]
+        string Login(string username, string password);
+        [OperationContract]
+        string Register(string username, string password, string kategori);
+        [OperationContract]
+        string UpdateRegister(string username, string password, string kategori, int id);
+        [OperationContract]
+        string DeleteRegister(string username);
+        [OperationContract]
+        List<DataRegister> DataRegisters();
 
         [OperationContract]
         List<CekLokasi> ReviewLokasis();
@@ -29,7 +40,7 @@ namespace ServiceReservasi
     public class CekLokasi
     {
         [DataMember]
-        public int IDLokasi { get; set; }
+        public string IDLokasi { get; set; }
         [DataMember]
         public string NamaLokasi { get; set; }
         [DataMember]
@@ -40,7 +51,7 @@ namespace ServiceReservasi
     public class DetailLokasi
     {
         [DataMember]
-        public int IDLokasi { get; set; }
+        public string IDLokasi { get; set; }
         [DataMember]
         public string NamaLokasi { get; set; }
         [DataMember]
@@ -61,7 +72,19 @@ namespace ServiceReservasi
         [DataMember]
         public int JumlahPemesanan { get; set; }
         [DataMember]
-        public int Lokasi { get; set; }
+        public string Lokasi { get; set; }
     }
 
+    [DataContract]
+    public class DataRegister
+    {
+        [DataMember(Order =1)]
+        public int id { get; set; }
+        [DataMember(Order = 2)]
+        public string username { get; set; }
+        [DataMember(Order = 3)]
+        public string password { get; set; }
+        [DataMember(Order = 4)]
+        public string kategori { get; set; }
+    }
 }
